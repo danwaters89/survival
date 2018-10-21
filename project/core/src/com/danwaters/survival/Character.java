@@ -1,10 +1,10 @@
 package com.danwaters.survival;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Disposable;
 
 public class Character {
 
@@ -18,7 +18,14 @@ public class Character {
     private final Sprite upSprite;
     private final Sprite downSprite;
 
-    public Character() {
+    // TODO: Is this terrible?
+    private final OrthographicCamera camera;
+
+    public Character(OrthographicCamera camera) {
+        // Set the camera
+        this.camera = camera;
+
+        // Create all of the sprites
         Texture texture = new Texture("core/assets/Sprites.png");
         TextureRegion region = new TextureRegion(texture, 2, 2, 32, 32);
         this.downSprite = new Sprite(region);
@@ -28,10 +35,17 @@ public class Character {
         rightSprite.flip(true, false);
         region = new TextureRegion(texture, 2, 70, 32, 32);
         this.upSprite = new Sprite(region);
+
+        // Set the current direction to down
         this.currentSprite = downSprite;
         direction = Direction.DOWN;
+
+        // Set the current position to the origin
         xTile = 0;
         yTile = 0;
+        setPosition();
+
+
     }
 
     public void draw(SpriteBatch batch) {
@@ -52,7 +66,7 @@ public class Character {
     public void moveRight() {
         if (direction == Direction.RIGHT) {
             // TODO: get this number from the map
-            xTile = Math.min(30, xTile + 1);
+            xTile = Math.min(29, xTile + 1);
         } else {
             direction = Direction.RIGHT;
             currentSprite = rightSprite;
@@ -63,7 +77,7 @@ public class Character {
     public void moveUp() {
         if (direction == Direction.UP) {
             // TODO: get this number from the map
-            yTile = Math.min(30, yTile + 1);
+            yTile = Math.min(29, yTile + 1);
         } else {
             direction = Direction.UP;
             currentSprite = upSprite;
@@ -85,6 +99,9 @@ public class Character {
     private void setPosition() {
         // TODO: Get tile width from map too
         currentSprite.setPosition(xTile * 32, yTile * 32);
+        // TODO: This seems terrible
+        camera.position.x = xTile * 32;
+        camera.position.y = yTile * 32;
     }
 
     private enum Direction {

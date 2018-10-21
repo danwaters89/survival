@@ -40,7 +40,7 @@ public class SurvivalGame extends ApplicationAdapter {
         camera.update();
 
         spriteBatch = new SpriteBatch();
-        character = new Character();
+        character = new Character(camera);
 	}
 
 	@Override
