@@ -44,8 +44,6 @@ public class Character {
         xTile = 0;
         yTile = 0;
         setPosition();
-
-
     }
 
     public void draw(SpriteBatch batch) {
