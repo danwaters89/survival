@@ -10,6 +10,8 @@ public class Character {
 
     private Sprite currentSprite;
     private Direction direction;
+    private int xTile;
+    private int yTile;
 
     private final Sprite leftSprite;
     private final Sprite rightSprite;
@@ -28,6 +30,8 @@ public class Character {
         this.upSprite = new Sprite(region);
         this.currentSprite = downSprite;
         direction = Direction.DOWN;
+        xTile = 0;
+        yTile = 0;
     }
 
     public void draw(SpriteBatch batch) {
@@ -36,42 +40,51 @@ public class Character {
 
     public void moveLeft() {
         if (direction == Direction.LEFT) {
-            currentSprite.translateX(-32);
+            // TODO: get this number from the map
+            xTile = Math.max(0, xTile - 1);
         } else {
             direction = Direction.LEFT;
-            leftSprite.setPosition(currentSprite.getX(), currentSprite.getY());
             currentSprite = leftSprite;
         }
+        setPosition();
     }
 
     public void moveRight() {
         if (direction == Direction.RIGHT) {
-            currentSprite.translateX(32);
+            // TODO: get this number from the map
+            xTile = Math.min(30, xTile + 1);
         } else {
             direction = Direction.RIGHT;
-            rightSprite.setPosition(currentSprite.getX(), currentSprite.getY());
             currentSprite = rightSprite;
         }
+        setPosition();
     }
 
     public void moveUp() {
         if (direction == Direction.UP) {
-            currentSprite.translateY(32);
+            // TODO: get this number from the map
+            yTile = Math.min(30, yTile + 1);
         } else {
             direction = Direction.UP;
-            upSprite.setPosition(currentSprite.getX(), currentSprite.getY());
             currentSprite = upSprite;
         }
+        setPosition();
     }
 
     public void moveDown() {
         if (direction == Direction.DOWN) {
-            currentSprite.translateY(-32);
+            // TODO: get this number from the map
+            yTile = Math.max(0, yTile - 1);
         } else {
             direction = Direction.DOWN;
-            downSprite.setPosition(currentSprite.getX(), currentSprite.getY());
             currentSprite = downSprite;
         }
+        setPosition();
+    }
+
+    private void setPosition() {
+        // TODO: Get tile width from map too
+        currentSprite.setPosition(xTile * 32, yTile * 32);
     }
 
     private enum Direction {
