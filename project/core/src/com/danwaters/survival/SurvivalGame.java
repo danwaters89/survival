@@ -45,16 +45,16 @@ public class SurvivalGame extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
 	        character.moveLeft();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
             character.moveRight();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             character.moveUp();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
             character.moveDown();
         }
         if(Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
