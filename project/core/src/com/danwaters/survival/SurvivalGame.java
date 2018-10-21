@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -21,6 +23,8 @@ public class SurvivalGame extends ApplicationAdapter {
     OrthographicCamera camera;
     TiledMap map;
     TiledMapRenderer mapRenderer;
+    Character character;
+    SpriteBatch spriteBatch;
 
 	@Override
 	public void create () {
@@ -34,21 +38,24 @@ public class SurvivalGame extends ApplicationAdapter {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, width, height);
         camera.update();
+
+        spriteBatch = new SpriteBatch();
+        character = new Character();
 	}
 
 	@Override
 	public void render () {
-	    if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-	        camera.translate(-32, 0);
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+	        character.moveLeft();
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            camera.translate(32, 0);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+            character.moveRight();
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            camera.translate(0, 32);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            character.moveUp();
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            camera.translate(0, -32);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            character.moveDown();
         }
         if(Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
             map.getLayers().get(0).setVisible(!map.getLayers().get(0).isVisible());
@@ -62,6 +69,11 @@ public class SurvivalGame extends ApplicationAdapter {
         camera.update();
         mapRenderer.setView(camera);
         mapRenderer.render();
+
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+        character.draw(spriteBatch);
+        spriteBatch.end();
 	}
 	
 	@Override
