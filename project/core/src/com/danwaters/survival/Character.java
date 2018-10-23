@@ -39,7 +39,7 @@ public class Character {
         this.camera = camera;
 
         // Create all of the sprites
-        spriteSheet = new Texture("core/assets/Sprites.png");
+        spriteSheet = new Texture("core/assets/sprites.png");
         TextureRegion[][] tmp = new TextureRegion[3][3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
