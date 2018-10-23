@@ -6,9 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Disposable;
 
-public class Character implements Disposable {
+public class Character {
 
     private static final float ANIM_TIME_SECS = 0.3f;
     // TODO: Take these from map eventually
@@ -159,10 +158,6 @@ public class Character implements Disposable {
                 currY -= Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
                 break;
         }
-    }
-
-    @Override
-    public void dispose() {
     }
 
     private enum Direction {
