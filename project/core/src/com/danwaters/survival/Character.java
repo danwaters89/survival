@@ -1,22 +1,35 @@
 package com.danwaters.survival;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Character {
 
-    private Sprite currentSprite;
-    private Direction direction;
-    private int xTile;
-    private int yTile;
+    private static final float ANIM_TIME_SECS = 0.3f;
+    // TODO: Take these from map eventually
+    private static final int MAP_MAX_X = 30 * 32;
+    private static final int MAP_MAX_Y = 30 * 32;
 
-    private final Sprite leftSprite;
-    private final Sprite rightSprite;
-    private final Sprite upSprite;
-    private final Sprite downSprite;
+    private Animation<TextureRegion> currentAnimation;
+    private TextureRegion currentFrame;
+    private Direction direction;
+    private float currX;
+    private float currY;
+    private float targetX;
+    private float targetY;
+    private float stateTime;
+    private boolean moving;
+
+    private final Texture spriteSheet;
+
+    private final Animation<TextureRegion> downAnimation;
+    private final Animation<TextureRegion> leftAnimation;
+    private final Animation<TextureRegion> rightAnimation;
+    private final Animation<TextureRegion> upAnimation;
 
     // TODO: Is this terrible?
     private final OrthographicCamera camera;
@@ -26,80 +39,125 @@ public class Character {
         this.camera = camera;
 
         // Create all of the sprites
-        Texture texture = new Texture("core/assets/Sprites.png");
-        TextureRegion region = new TextureRegion(texture, 2, 2, 32, 32);
-        this.downSprite = new Sprite(region);
-        region = new TextureRegion(texture, 2, 36, 32, 32);
-        this.leftSprite = new Sprite(region);
-        this.rightSprite = new Sprite(region);
-        rightSprite.flip(true, false);
-        region = new TextureRegion(texture, 2, 70, 32, 32);
-        this.upSprite = new Sprite(region);
+        spriteSheet = new Texture("core/assets/Sprites.png");
+        TextureRegion[][] tmp = new TextureRegion[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                tmp[i][j] = new TextureRegion(spriteSheet, 2 + 34 * j, 2 + 34 * i, 32, 32);
+            }
+        }
+
+        // Special case for the right direction. Sort of terrible
+        TextureRegion[] rightTmp = new TextureRegion[3];
+        for (int i = 0; i < 3; i++) {
+            rightTmp[i] = new TextureRegion(spriteSheet, 2 + 34 * i, 36, 32, 32);
+            rightTmp[i].flip(true, false);
+        }
+        downAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[0]);
+        leftAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[1]);
+        rightAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, rightTmp);
+        upAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[2]);
 
         // Set the current direction to down
-        this.currentSprite = downSprite;
+        this.currentAnimation = downAnimation;
         direction = Direction.DOWN;
 
         // Set the current position to the origin
-        xTile = 0;
-        yTile = 0;
-        setPosition();
+        currX = 0;
+        currY = 0;
+        camera.position.x = currX;
+        camera.position.y = currY;
     }
 
     public void draw(SpriteBatch batch) {
-        currentSprite.draw(batch);
+        if (moving) {
+            stateTime += Gdx.graphics.getDeltaTime();
+            if (stateTime > ANIM_TIME_SECS) {
+                currX = targetX;
+                currY = targetY;
+                stateTime = 0;
+                moving = false;
+            } else {
+                updateCurrentPosition();
+                camera.position.x = currX;
+                camera.position.y = currY;
+            }
+        }
+        currentFrame = currentAnimation.getKeyFrame(stateTime);
+        batch.draw(currentFrame, currX, currY);
     }
 
     public void moveLeft() {
-        if (direction == Direction.LEFT) {
-            // TODO: get this number from the map
-            xTile = Math.max(0, xTile - 1);
-        } else {
-            direction = Direction.LEFT;
-            currentSprite = leftSprite;
+        if (!moving) {
+            if (direction != Direction.LEFT) {
+                direction = Direction.LEFT;
+                currentAnimation = leftAnimation;
+            } else {
+                if (currX - 32 >= 0) {
+                    moving = true;
+                    targetX = Math.max(0, currX - 32);
+                }
+            }
         }
-        setPosition();
     }
 
     public void moveRight() {
-        if (direction == Direction.RIGHT) {
-            // TODO: get this number from the map
-            xTile = Math.min(29, xTile + 1);
-        } else {
-            direction = Direction.RIGHT;
-            currentSprite = rightSprite;
+        if (!moving) {
+            if (direction != Direction.RIGHT) {
+                direction = Direction.RIGHT;
+                currentAnimation = rightAnimation;
+            } else {
+                if (currX + 32 < MAP_MAX_X) {
+                    moving = true;
+                    targetX = currX + 32;
+                }
+            }
         }
-        setPosition();
     }
 
     public void moveUp() {
-        if (direction == Direction.UP) {
-            // TODO: get this number from the map
-            yTile = Math.min(29, yTile + 1);
-        } else {
-            direction = Direction.UP;
-            currentSprite = upSprite;
+        if (!moving) {
+            if (direction != Direction.UP) {
+                direction = Direction.UP;
+                currentAnimation = upAnimation;
+            } else {
+                if (currY + 32 < MAP_MAX_Y) {
+                    moving = true;
+                    targetY = currY + 32;
+                }
+            }
         }
-        setPosition();
     }
 
     public void moveDown() {
-        if (direction == Direction.DOWN) {
-            // TODO: get this number from the map
-            yTile = Math.max(0, yTile - 1);
-        } else {
-            direction = Direction.DOWN;
-            currentSprite = downSprite;
+        if (!moving) {
+            if (direction != Direction.DOWN) {
+                direction = Direction.DOWN;
+                currentAnimation = downAnimation;
+            } else {
+                if (currY - 32 >= 0) {
+                    moving = true;
+                    targetY = currY - 32;
+                }
+            }
         }
-        setPosition();
     }
 
-    private void setPosition() {
-        // TODO: Get tile width from map too
-        currentSprite.setPosition(xTile * 32, yTile * 32);
-        // TODO: This seems terrible
-        camera.position.x = xTile * 32;
-        camera.position.y = yTile * 32;
+    private void updateCurrentPosition() {
+        switch (direction) {
+            case LEFT:
+                currX -= Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
+                break;
+            case RIGHT:
+                currX += Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
+                break;
+            case UP:
+                currY += Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
+                break;
+            case DOWN:
+                currY -= Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
+                break;
+        }
     }
 
     private enum Direction {
