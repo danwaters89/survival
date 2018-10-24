@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import java.util.Arrays;
+
 public class Character {
 
     private static final float ANIM_TIME_SECS = 0.3f;
@@ -25,6 +27,11 @@ public class Character {
     private boolean moving;
 
     private final Texture spriteSheet;
+
+    private final Animation<TextureRegion> downWalkAnimation;
+    private final Animation<TextureRegion> leftWalkAnimation;
+    private final Animation<TextureRegion> rightWalkAnimation;
+    private final Animation<TextureRegion> upWalkAnimation;
 
     private final Animation<TextureRegion> downAnimation;
     private final Animation<TextureRegion> leftAnimation;
@@ -53,13 +60,17 @@ public class Character {
             rightTmp[i] = new TextureRegion(spriteSheet, 2 + 34 * i, 36, 32, 32);
             rightTmp[i].flip(true, false);
         }
-        downAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[0]);
-        leftAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[1]);
-        rightAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, rightTmp);
-        upAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[2]);
+        downWalkAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[0]);
+        leftWalkAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[1]);
+        rightWalkAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, rightTmp);
+        upWalkAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, tmp[2]);
+        downAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, Arrays.copyOfRange(tmp[0], 0, 1));
+        leftAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, Arrays.copyOfRange(tmp[1], 0, 1));
+        rightAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, Arrays.copyOfRange(rightTmp, 0, 1));
+        upAnimation = new Animation<TextureRegion>(ANIM_TIME_SECS / 3, Arrays.copyOfRange(tmp[2], 0, 1));
 
         // Set the current direction to down
-        this.currentAnimation = downAnimation;
+        this.currentAnimation = downWalkAnimation;
         direction = Direction.DOWN;
 
         // Set the current position to the origin
@@ -72,7 +83,7 @@ public class Character {
     public void draw(SpriteBatch batch) {
         if (moving) {
             stateTime += Gdx.graphics.getDeltaTime();
-            if (stateTime > ANIM_TIME_SECS) {
+            if (stateTime > currentAnimation.getAnimationDuration()) {
                 currX = targetX;
                 currY = targetY;
                 stateTime = 0;
@@ -89,13 +100,15 @@ public class Character {
 
     public void moveLeft() {
         if (!moving) {
+            moving = true;
             if (direction != Direction.LEFT) {
+                System.out.println("HERE");
                 direction = Direction.LEFT;
                 currentAnimation = leftAnimation;
             } else {
                 if (currX - 32 >= 0) {
-                    moving = true;
                     targetX = Math.max(0, currX - 32);
+                    currentAnimation = leftWalkAnimation;
                 }
             }
         }
@@ -103,13 +116,14 @@ public class Character {
 
     public void moveRight() {
         if (!moving) {
+            moving = true;
             if (direction != Direction.RIGHT) {
                 direction = Direction.RIGHT;
                 currentAnimation = rightAnimation;
             } else {
                 if (currX + 32 < MAP_MAX_X) {
-                    moving = true;
                     targetX = currX + 32;
+                    currentAnimation = rightWalkAnimation;
                 }
             }
         }
@@ -117,13 +131,14 @@ public class Character {
 
     public void moveUp() {
         if (!moving) {
+            moving = true;
             if (direction != Direction.UP) {
                 direction = Direction.UP;
                 currentAnimation = upAnimation;
             } else {
                 if (currY + 32 < MAP_MAX_Y) {
-                    moving = true;
                     targetY = currY + 32;
+                    currentAnimation = upWalkAnimation;
                 }
             }
         }
@@ -131,32 +146,36 @@ public class Character {
 
     public void moveDown() {
         if (!moving) {
+            moving = true;
             if (direction != Direction.DOWN) {
                 direction = Direction.DOWN;
                 currentAnimation = downAnimation;
             } else {
                 if (currY - 32 >= 0) {
-                    moving = true;
                     targetY = currY - 32;
+                    currentAnimation = downWalkAnimation;
                 }
             }
         }
     }
 
     private void updateCurrentPosition() {
-        switch (direction) {
-            case LEFT:
-                currX -= Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
-                break;
-            case RIGHT:
-                currX += Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
-                break;
-            case UP:
-                currY += Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
-                break;
-            case DOWN:
-                currY -= Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
-                break;
+        // TODO: This is pretty messy
+        if (targetX != currX || targetY != currY) {
+            switch (direction) {
+                case LEFT:
+                    currX -= Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
+                    break;
+                case RIGHT:
+                    currX += Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
+                    break;
+                case UP:
+                    currY += Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
+                    break;
+                case DOWN:
+                    currY -= Gdx.graphics.getDeltaTime() / ANIM_TIME_SECS * 32;
+                    break;
+            }
         }
     }
 

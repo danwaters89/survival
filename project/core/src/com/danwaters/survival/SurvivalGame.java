@@ -45,22 +45,22 @@ public class SurvivalGame extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+	    if (Gdx.input.isKeyPressed(Input.Keys.A)) {
 	        character.moveLeft();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             character.moveRight();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             character.moveUp();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             character.moveDown();
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
             map.getLayers().get(0).setVisible(!map.getLayers().get(0).isVisible());
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
             map.getLayers().get(1).setVisible(!map.getLayers().get(1).isVisible());
         }
         Gdx.gl.glClearColor(1, 0, 0, 1);
